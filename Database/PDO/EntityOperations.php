@@ -1,6 +1,6 @@
 <?php
 
-namespace database\PDO {
+namespace Database\PDO {
 
     abstract class EntityOperations implements EntityInterface
     {

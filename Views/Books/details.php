@@ -28,8 +28,7 @@ if (null != $viewModel->get('errors')) {
                     echo "<hr />";
                 }
             } else {
-                echo "<img src=\"../../database/dbStorage/bookImages/placeholder_book.png\" height=\"300px\" 
-                style=\"background-size: auto\" alt=\"image\">";
+                echo "<img src=\"../../database/dbStorage/bookImages/placeholder_book.png\" height=\"300px\" style=\"background-size: auto\" alt=\"image\">";
             }
         }
         ?>

@@ -1,6 +1,6 @@
 <?php
 
-namespace database\PDO {
+namespace Database\PDO {
 
     interface EntityInterface
     {

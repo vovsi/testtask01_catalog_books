@@ -19,7 +19,7 @@
             Данные б/д по-умолчанию: username: <span class="mark-info">root</span>, password:
             <span class="mark-info">ПУСТО</span><br/>
             Если нужно изменить данные подключения, то перейдите в класс-файл <span class="mark-info">
-                /database/DbConfig.php</span> и укажите актуальные.
+                /Database/DbConfig.php</span> и укажите актуальные.
         </p>
     </div>
 </div>

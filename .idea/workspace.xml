@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="db66f6fc-e0d2-4ef0-a9b5-b1a09c37e1e8" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/Controllers/AuthorsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AuthorsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BooksController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BooksController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/HeadingsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/HeadingsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/MigrationsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/MigrationsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/PublishersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/PublishersController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MVC/Services/UtilsService.php" beforeDir="false" afterPath="$PROJECT_DIR$/MVC/Services/UtilsService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Books/details.php" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Books/details.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Home/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Home/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/DbConfig.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/DbConfig.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/DbPDO.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/DbPDO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Author.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Author.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Book.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Book.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/BookAuthor.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/BookAuthor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/BookPhoto.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/BookPhoto.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Heading.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Heading.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Photo.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Photo.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Publisher.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Publisher.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/Entities/Version.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/Entities/Version.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/EntityInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/EntityInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/PDO/EntityOperations.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/PDO/EntityOperations.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d0608f5294bb.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d0608f5294bb.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d0608f59ad3e.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d0608f59ad3e.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d0608f63ae39.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d0608f63ae39.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d06096e1a238.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d06096e1a238.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d06096e8dde4.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d06096e8dde4.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d06096eda886.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d06096eda886.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d060a9cde048.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d060a9cde048.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d060a9d42815.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d060a9d42815.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d060b28b1d3d.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d060b28b1d3d.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d060b28b4c1e.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d060b28b4c1e.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/5d060b8954f03.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/5d060b8954f03.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/dbStorage/bookImages/placeholder_book.png" beforeDir="false" afterPath="$PROJECT_DIR$/Database/dbStorage/bookImages/placeholder_book.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/MigrationUtils.php" beforeDir="false" afterPath="$PROJECT_DIR$/Database/migrations/MigrationUtils.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/sqlFiles/0001_base.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Database/migrations/sqlFiles/0001_base.sql" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="catalog_books@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="catalog_books@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="catalog_books@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="catalog_books: schema" type="c314c289:MysqlImplModel$Schema" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="DbConfig.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Database/DbConfig.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="239">
+              <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AuthorsController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controllers/AuthorsController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="307">
+              <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
+              <folding>
+                <element signature="e#36#58#0#PHP" expanded="true" />
+                <element signature="n#__construct#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#index#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#add#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#remove#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#edit#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HeadingsController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controllers/HeadingsController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="221">
+              <caret line="13" selection-start-line="13" selection-end-line="13" />
+              <folding>
+                <element signature="e#36#58#0#PHP" expanded="true" />
+                <element signature="n#__construct#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#index#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#add#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#remove#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#edit#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="photos" pinned="false" current-in-tab="false">
+        <entry file="das://5f4e27ec-bf52-45fc-83d7-d1308e400bb7/schema/catalog_books/table/photos">
+          <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+            <state>
+              <filtering enabled="true" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="books_photos" pinned="false" current-in-tab="false">
+        <entry file="das://5f4e27ec-bf52-45fc-83d7-d1308e400bb7/schema/catalog_books/table/books_photos">
+          <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+            <state>
+              <filtering enabled="true" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="details.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Views/Books/details.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="28" column="17" lean-forward="true" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
+              <folding>
+                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#ul#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#ul#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HomeController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controllers/HomeController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="272">
+              <caret line="16" column="32" selection-start-line="16" selection-start-column="32" selection-end-line="16" selection-end-column="32" />
+              <folding>
+                <element signature="e#36#57#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MigrationsController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controllers/MigrationsController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
+              <folding>
+                <element signature="e#36#75#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PublishersController.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Controllers/PublishersController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="493">
+              <caret line="252" lean-forward="true" selection-start-line="252" selection-end-line="252" />
+              <folding>
+                <element signature="e#36#58#0#PHP" expanded="true" />
+                <element signature="n#__construct#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#index#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#add#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#remove#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#edit#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BooksController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controllers/BooksController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="188">
+              <caret line="476" column="79" selection-start-line="476" selection-start-column="79" selection-end-line="476" selection-end-column="79" />
+              <folding>
+                <element signature="e#36#58#0#PHP" expanded="true" />
+                <element signature="n#__construct#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#index#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#details#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#add#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="n#remove#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+                <element signature="e#34950#38245#0#PHP" />
+                <element signature="e#38421#43124#0#PHP" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/database/DbConfig.php" />
+        <option value="$PROJECT_DIR$/Views/Home/index.php" />
+        <option value="$PROJECT_DIR$/MVC/Services/UtilsService.php" />
+        <option value="$PROJECT_DIR$/Database/DbConfig.php" />
+        <option value="$PROJECT_DIR$/Database/migrations/MigrationUtils.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/Entities/Book.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/Entities/BookAuthor.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/Entities/BookPhoto.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/Entities/Heading.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/DbPDO.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/EntityInterface.php" />
+        <option value="$PROJECT_DIR$/Database/PDO/EntityOperations.php" />
+        <option value="$PROJECT_DIR$/Views/Books/details.php" />
+        <option value="$PROJECT_DIR$/Controllers/BooksController.php" />
+        <option value="$PROJECT_DIR$/Controllers/AuthorsController.php" />
+        <option value="$PROJECT_DIR$/Controllers/HeadingsController.php" />
+        <option value="$PROJECT_DIR$/Controllers/MigrationsController.php" />
+        <option value="$PROJECT_DIR$/Controllers/PublishersController.php" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodePackageJsonFileManager">
+    <packageJsonPaths />
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="width" value="683" />
+    <option name="height" value="728" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="testtask01_catalog_books" type="b2602c69:ProjectViewProjectNode" />
+              <item name="testtask01_catalog_books" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="com.intellij.database.dataSource.DataSourceTemplate" value="MariaDB" />
+    <property name="database.console.LAST_STATE" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="db66f6fc-e0d2-4ef0-a9b5-b1a09c37e1e8" name="Default" comment="" />
+      <created>1561041111964</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1561041111964</updated>
+      <workItem from="1561041115481" duration="10407000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="10407000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Version Control" />
+      <window_info anchor="bottom" id="Terminal" weight="0.32861635" />
+      <window_info anchor="bottom" id="Database Console" visible="true" weight="0.08962264" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15959005" />
+      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
+      <window_info anchor="right" id="Database" visible="true" weight="0.19912152" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32861635" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Views/Home/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" column="18" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/migrations/MigrationUtils.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Author.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Book.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/BookAuthor.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/BookPhoto.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="79" column="22" selection-start-line="79" selection-start-column="22" selection-end-line="79" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Heading.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Photo.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Publisher.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/Entities/Version.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="21" column="11" selection-start-line="21" selection-start-column="11" selection-end-line="21" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/DbPDO.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/EntityInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="29" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/PDO/EntityOperations.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MVC/Services/UtilsService.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="23" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MVC/Helpers/Url.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="5" lean-forward="true" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/5f4e27ec-bf52-45fc-83d7-d1308e400bb7/console.sql">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="das://5f4e27ec-bf52-45fc-83d7-d1308e400bb7/schema/catalog_books/table/books">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://5f4e27ec-bf52-45fc-83d7-d1308e400bb7/schema/catalog_books/table/books_photos">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Views/Books/details.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="28" column="17" lean-forward="true" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DbConfig.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://5f4e27ec-bf52-45fc-83d7-d1308e400bb7/schema/catalog_books/table/photos">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/BooksController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="476" column="79" selection-start-line="476" selection-start-column="79" selection-end-line="476" selection-end-column="79" />
+          <folding>
+            <element signature="e#36#58#0#PHP" expanded="true" />
+            <element signature="n#__construct#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#index#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#details#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#add#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#remove#0;n#BooksController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="e#34950#38245#0#PHP" />
+            <element signature="e#38421#43124#0#PHP" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/AuthorsController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
+          <folding>
+            <element signature="e#36#58#0#PHP" expanded="true" />
+            <element signature="n#__construct#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#index#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#add#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#remove#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#edit#0;n#AuthorsController#0;n#!!block;n#Controllers#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/HeadingsController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+          <folding>
+            <element signature="e#36#58#0#PHP" expanded="true" />
+            <element signature="n#__construct#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#index#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#add#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#remove#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#edit#0;n#HeadingsController#0;n#!!block;n#Controllers#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/HomeController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="32" selection-start-line="16" selection-start-column="32" selection-end-line="16" selection-end-column="32" />
+          <folding>
+            <element signature="e#36#57#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/MigrationsController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
+          <folding>
+            <element signature="e#36#75#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Controllers/PublishersController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="252" lean-forward="true" selection-start-line="252" selection-end-line="252" />
+          <folding>
+            <element signature="e#36#58#0#PHP" expanded="true" />
+            <element signature="n#__construct#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#index#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#add#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#remove#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+            <element signature="n#edit#0;n#PublishersController#0;n#!!block;n#Controllers#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

@@ -2,8 +2,8 @@
 
 namespace Controllers {
 
-    use database\migrations\MigrationUtils;
-    use database\PDO\DbPDO;
+    use Database\migrations\MigrationUtils;
+    use Database\PDO\DbPDO;
     use Models\MigrationModel;
     use MVC\Controllers\BaseController;
     use MVC\Services\UtilsService;

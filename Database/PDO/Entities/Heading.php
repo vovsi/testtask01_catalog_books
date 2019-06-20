@@ -1,9 +1,9 @@
 <?php
 
-namespace database\PDO\Entities {
+namespace Database\PDO\Entities {
 
-    use database\PDO\DbPDO;
-    use database\PDO\EntityOperations;
+    use Database\PDO\DbPDO;
+    use Database\PDO\EntityOperations;
 
     class Heading extends EntityOperations
     {

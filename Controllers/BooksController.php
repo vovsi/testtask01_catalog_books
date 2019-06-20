@@ -2,15 +2,15 @@
 
 namespace Controllers {
 
-    use database\DbConfig;
-    use database\PDO\Entities\Author;
-    use database\PDO\Entities\BookAuthor;
-    use database\PDO\Entities\BookPhoto;
-    use database\PDO\Entities\Heading;
-    use database\PDO\DbPDO;
-    use database\PDO\Entities\Book;
-    use database\PDO\Entities\Photo;
-    use database\PDO\Entities\Publisher;
+    use Database\DbConfig;
+    use Database\PDO\Entities\Author;
+    use Database\PDO\Entities\BookAuthor;
+    use Database\PDO\Entities\BookPhoto;
+    use Database\PDO\Entities\Heading;
+    use Database\PDO\DbPDO;
+    use Database\PDO\Entities\Book;
+    use Database\PDO\Entities\Photo;
+    use Database\PDO\Entities\Publisher;
     use Models\BookModel;
     use MVC\Controllers\BaseController;
     use MVC\Services\UtilsService;
@@ -53,43 +53,50 @@ namespace Controllers {
                 $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 if ($id) {
                     if (!empty($id)) {
-                        // Ищем книгу
-                        $book = new Book($this->db);
-                        $resBook = $book->newInstance($id);
-                        if (null != $resBook) {
-                            // Ищем рубрику
-                            $heading = new Heading($this->db);
-                            $resHeading = $heading->newInstance($resBook[0]['heading_id']);
-                            if (null != $resHeading) {
-                                $resBook[0]['heading'] = $resHeading[0]['name'];
-                                // Ищем авторов
-                                $bookAuthor = new BookAuthor($this->db);
-                                $resBookAuthors = $bookAuthor->getAuthorsOfBookJoin($resBook[0]['id']);
-                                if (null != $resBookAuthors) {
-                                    $resBook[0]['authors'] = $resBookAuthors;
-                                    // Ищем издательство
-                                    $publisher = new Publisher($this->db);
-                                    $resPublisher = $publisher->newInstance($resBook[0]['publisher_id']);
-                                    if (null != $resPublisher) {
-                                        $resBook[0]['publisher'] = $resPublisher[0];
-                                        // Ищем фото книги
-                                        $booksPhotos = new BookPhoto($this->db);
-                                        $resBookPhotos = $booksPhotos
-                                            ->getPhotosOfBookJoin($resBook[0]['id'], 1000);
-                                        $resBook['photos'] = $resBookPhotos;
-                                        $this->view->output($this->model->details($resBook));
-                                        exit();
+                        if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                            strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                            // Ищем книгу
+                            $book = new Book($this->db);
+                            $resBook = $book->newInstance($id);
+                            if (null != $resBook) {
+                                // Ищем рубрику
+                                $heading = new Heading($this->db);
+                                $resHeading = $heading->newInstance($resBook[0]['heading_id']);
+                                if (null != $resHeading) {
+                                    $resBook[0]['heading'] = $resHeading[0]['name'];
+                                    // Ищем авторов
+                                    $bookAuthor = new BookAuthor($this->db);
+                                    $resBookAuthors = $bookAuthor->getAuthorsOfBookJoin($resBook[0]['id']);
+                                    if (null != $resBookAuthors) {
+                                        $resBook[0]['authors'] = $resBookAuthors;
+                                        // Ищем издательство
+                                        $publisher = new Publisher($this->db);
+                                        $resPublisher = $publisher->newInstance($resBook[0]['publisher_id']);
+                                        if (null != $resPublisher) {
+                                            $resBook[0]['publisher'] = $resPublisher[0];
+                                            // Ищем фото книги
+                                            $booksPhotos = new BookPhoto($this->db);
+                                            $resBookPhotos = $booksPhotos
+                                                ->getPhotosOfBookJoin($resBook[0]['id'], 1000);
+                                            $resBook['photos'] = $resBookPhotos;
+                                            $this->view->output($this->model->details($resBook));
+                                            exit();
+                                        } else {
+                                            $errors[] = 'Ошибка получения издательства.';
+                                        }
                                     } else {
-                                        $errors[] = 'Ошибка получения издательства.';
+                                        $errors[] = 'Ошибка получения авторов.';
                                     }
                                 } else {
-                                    $errors[] = 'Ошибка получения авторов.';
+                                    $errors[] = 'Ошибка получения рубрики.';
                                 }
                             } else {
-                                $errors[] = 'Ошибка получения рубрики.';
+                                $errors[] = 'Ошибка поиска книги с id ' . $id;
                             }
                         } else {
-                            $errors[] = 'Ошибка поиска книги с id ' . $id;
+                            $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                ')';
                         }
                     }
                 } else {
@@ -129,113 +136,159 @@ namespace Controllers {
                         $datePublishing = filter_var($_POST['date_publishing'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         $headingId = filter_var($_POST['heading_id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         $publisherId = filter_var($_POST['publisher_id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                        $authorsId = $_POST['authors_id'];
                         if ($name && $datePublishing && $headingId && $publisherId) {
-                            $authorsId = $_POST['authors_id'];
-                            if (!empty($name) && !empty($datePublishing) && !empty($headingId) && !empty($publisherId) &&
-                                !empty($authorsId)) {
-
-                                try {
-                                    $this->db->beginTransaction();
-                                    // Добавляем книгу
-                                    $book = new Book($this->db);
-                                    $book = $book->newEmptyInstance();
-                                    $book->setName($name);
-                                    $book->setDatePublishing($datePublishing);
-                                    $book->setHeadingId($headingId);
-                                    $book->setPublisherId($publisherId);
-                                    $book->save();
-
-                                    // Добавляем фото загруженные с пк (если есть)
-                                    if (isset($_FILES['images'])) {
-                                        $photo = new Photo($this->db);
-                                        $bookPhoto = new BookPhoto($this->db);
-                                        if (count($_FILES['images']['tmp_name']) > 0 &&
-                                            $_FILES['images']['tmp_name'][0] != "") {
-                                            for ($i = 0; $i < count($_FILES['images']['tmp_name']); $i++) {
-                                                // Сохраняем файл в папку
-                                                $nameFile = uniqid() . '.jpg';
-                                                if (!move_uploaded_file($_FILES['images']['tmp_name'][$i],
-                                                    DbConfig::PATH_TO_DB_IMAGES . $nameFile)) {
-                                                    $errors[] = 'Ошибка сохранения файла.';
-                                                    $this->view->output($this->model->add($errors, $headings,
-                                                        $publishers, $authors));
-                                                    exit();
-                                                }
-                                                // Добавляем фото в б/д
-                                                $image = $photo->newEmptyInstance();
-                                                $image->setPath(DbConfig::PATH_TO_DB_IMAGES . $nameFile);
-                                                $image->save();
-                                                // Добавляем в промежуточную таблицу books_photos
-                                                $bookPhoto = $bookPhoto->newEmptyInstance();
-                                                $bookPhoto->setBookId($book->getId());
-                                                $bookPhoto->setPhotoId($image->getId());
-                                                $bookPhoto->save();
-                                            }
+                            if (strlen($name) >= DbConfig::MIN_SYMBOLS_BOOK_NAME &&
+                                strlen($name) <= DbConfig::MAX_SYMBOLS_BOOK_NAME &&
+                                strlen($headingId) >= DbConfig::MIN_SYMBOLS_ID &&
+                                strlen($headingId) <= DbConfig::MAX_SYMBOLS_ID &&
+                                strlen($publisherId) >= DbConfig::MIN_SYMBOLS_ID &&
+                                strlen($publisherId) <= DbConfig::MAX_SYMBOLS_ID &&
+                                count($authorsId) <= DbConfig::MAX_AUTHORS_BOOK &&
+                                count($authorsId) >= DbConfig::MIN_AUTHORS_BOOK) {
+                                // Проверяем кол-во загружаемых фото
+                                $countPhoto = 0;
+                                if (isset($_FILES['images'])) {
+                                    $countPhoto += count($_FILES['images']['tmp_name']);
+                                }
+                                if (isset($_POST['images_urls'])) {
+                                    if (!empty($_POST['images_urls'])) {
+                                        $resMatch = array();
+                                        if (preg_match_all(UtilsService::PATTERN_URL_IMAGE,
+                                            $_POST['images_urls'], $resMatch,
+                                            PREG_SET_ORDER, 0)) {
+                                            ;
                                         }
+                                        $countPhoto += count($resMatch) - 1;
                                     }
-                                    // Добавляем фото с ссылок (если есть)
-                                    if (isset($_POST['images_urls'])) {
-                                        $resMatch = [];
-                                        if (!empty($_POST['images_urls'])) {
-                                            if (preg_match_all(UtilsService::PATTERN_URL_IMAGE,
-                                                $_POST['images_urls'], $resMatch,
-                                                PREG_SET_ORDER, 0)) {
-                                                foreach ($resMatch as $url) {
-                                                    if (!empty($url)) {
+                                }
+                                if ($countPhoto <= DbConfig::MAX_PHOTOS_BOOK &&
+                                    $countPhoto >= DbConfig::MIN_PHOTOS_BOOK) {
+                                    if (!empty($name) && !empty($datePublishing) && !empty($headingId) && !empty($publisherId) &&
+                                        !empty($authorsId)) {
+
+                                        try {
+                                            $this->db->beginTransaction();
+                                            // Добавляем книгу
+                                            $book = new Book($this->db);
+                                            $book = $book->newEmptyInstance();
+                                            $book->setName($name);
+                                            $book->setDatePublishing($datePublishing);
+                                            $book->setHeadingId($headingId);
+                                            $book->setPublisherId($publisherId);
+                                            $book->save();
+
+                                            // Добавляем фото загруженные с пк (если есть)
+                                            if (isset($_FILES['images'])) {
+                                                $photo = new Photo($this->db);
+                                                $bookPhoto = new BookPhoto($this->db);
+                                                if (count($_FILES['images']['tmp_name']) > 0 &&
+                                                    $_FILES['images']['tmp_name'][0] != "") {
+                                                    for ($i = 0; $i < count($_FILES['images']['tmp_name']); $i++) {
+                                                        // Сохраняем файл в папку
                                                         $nameFile = uniqid() . '.jpg';
-                                                        if (!file_put_contents(DbConfig::PATH_TO_DB_IMAGES .
-                                                            $nameFile, file_get_contents($url[0]))) {
-                                                            $errors[] = 'Ошибка загрузки изображения.';
+                                                        if (!move_uploaded_file($_FILES['images']['tmp_name'][$i],
+                                                            DbConfig::PATH_TO_DB_IMAGES . $nameFile)) {
+                                                            $errors[] = 'Ошибка сохранения файла.';
                                                             $this->view->output($this->model->add($errors, $headings,
                                                                 $publishers, $authors));
                                                             exit();
-                                                        } else {
-                                                            // Добавляем фото в б/д
-                                                            $image = $photo->newEmptyInstance();
-                                                            $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
-                                                                $nameFile);
-                                                            $image->save();
-                                                            // Добавляем в промежуточную таблицу books_photos
-                                                            $bookPhoto = $bookPhoto->newEmptyInstance();
-                                                            $bookPhoto->setBookId($book->getId());
-                                                            $bookPhoto->setPhotoId($image->getId());
-                                                            $bookPhoto->save();
                                                         }
+                                                        // Добавляем фото в б/д
+                                                        $image = $photo->newEmptyInstance();
+                                                        $image->setPath(DbConfig::PATH_TO_DB_IMAGES . $nameFile);
+                                                        $image->save();
+                                                        // Добавляем в промежуточную таблицу books_photos
+                                                        $bookPhoto = $bookPhoto->newEmptyInstance();
+                                                        $bookPhoto->setBookId($book->getId());
+                                                        $bookPhoto->setPhotoId($image->getId());
+                                                        $bookPhoto->save();
                                                     }
                                                 }
-                                            } else {
-                                                $errors[] = 'Url на изображение является некорректным.';
-                                                $this->db->rollBack();
-                                                $this->view->output($this->model->add($errors, $headings, $publishers,
-                                                    $authors));
-                                                exit();
                                             }
-                                        }
-                                    }
+                                            // Добавляем фото с ссылок (если есть)
+                                            if (isset($_POST['images_urls'])) {
+                                                $resMatch = [];
+                                                if (!empty($_POST['images_urls'])) {
+                                                    if (preg_match_all(UtilsService::PATTERN_URL_IMAGE,
+                                                        $_POST['images_urls'], $resMatch,
+                                                        PREG_SET_ORDER, 0)) {
+                                                        foreach ($resMatch as $url) {
+                                                            if (!empty($url)) {
+                                                                $nameFile = uniqid() . '.jpg';
+                                                                if (!file_put_contents(DbConfig::PATH_TO_DB_IMAGES .
+                                                                    $nameFile, file_get_contents($url[0]))) {
+                                                                    $errors[] = 'Ошибка загрузки изображения.';
+                                                                    $this->view->output($this->model->add($errors,
+                                                                        $headings,
+                                                                        $publishers, $authors));
+                                                                    exit();
+                                                                } else {
+                                                                    // Добавляем фото в б/д
+                                                                    $image = $photo->newEmptyInstance();
+                                                                    $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
+                                                                        $nameFile);
+                                                                    $image->save();
+                                                                    // Добавляем в промежуточную таблицу books_photos
+                                                                    $bookPhoto = $bookPhoto->newEmptyInstance();
+                                                                    $bookPhoto->setBookId($book->getId());
+                                                                    $bookPhoto->setPhotoId($image->getId());
+                                                                    $bookPhoto->save();
+                                                                }
+                                                            }
+                                                        }
+                                                    } else {
+                                                        $errors[] = 'Url на изображение является некорректным.';
+                                                        $this->db->rollBack();
+                                                        $this->view->output($this->model->add($errors, $headings,
+                                                            $publishers,
+                                                            $authors));
+                                                        exit();
+                                                    }
+                                                }
+                                            }
 
-                                    // Добавляем авторов книги
-                                    $bookAuthor = new BookAuthor($this->db);
-                                    foreach ($authorsId as $authorId) {
-                                        $authorId = filter_var($authorId, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                                        if (!empty($authorsId)) {
-                                            $authorFound = $author->newInstance($authorId);
-                                            if (null != $authorFound) {
-                                                $bookAuthorNew = $bookAuthor->newEmptyInstance();
-                                                $bookAuthorNew->setBookId($book->getId());
-                                                $bookAuthorNew->setAuthorId($authorFound[0]['id']);
-                                                $bookAuthorNew->save();
+                                            // Добавляем авторов книги
+                                            $bookAuthor = new BookAuthor($this->db);
+                                            foreach ($authorsId as $authorId) {
+                                                $authorId = filter_var($authorId, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                                                if (!empty($authorsId)) {
+                                                    $authorFound = $author->newInstance($authorId);
+                                                    if (null != $authorFound) {
+                                                        $bookAuthorNew = $bookAuthor->newEmptyInstance();
+                                                        $bookAuthorNew->setBookId($book->getId());
+                                                        $bookAuthorNew->setAuthorId($authorFound[0]['id']);
+                                                        $bookAuthorNew->save();
+                                                    }
+                                                }
                                             }
+                                            $this->db->commit();
+                                            UtilsService::redirect("books");
+                                        } catch (\Exception $ex) {
+                                            $this->db->rollBack();
+                                            $errors[] = $ex->getMessage();
                                         }
+
+                                    } else {
+                                        $errors[] = 'Параметры элемента книги не должны быть пустыми.';
                                     }
-                                    $this->db->commit();
-                                    UtilsService::redirect("books");
-                                } catch (\Exception $ex) {
-                                    $this->db->rollBack();
-                                    $errors[] = $ex->getMessage();
+                                } else {
+                                    $errors[] = 'Нарушены правила кол-ва в данных. Допустимо: Фото(' .
+                                        DbConfig::MIN_PHOTOS_BOOK . '-' . DbConfig::MAX_PHOTOS_BOOK .
+                                        ' шт.)';
                                 }
-
                             } else {
-                                $errors[] = 'Параметры элемента книги не должны быть пустыми.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                    DbConfig::MIN_SYMBOLS_BOOK_NAME . '-' . DbConfig::MAX_SYMBOLS_BOOK_NAME .
+                                    ') HeadingId(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ') PublisherId(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ') Id(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ') Authors(' .
+                                    DbConfig::MIN_AUTHORS_BOOK . '-' . DbConfig::MAX_AUTHORS_BOOK .
+                                    ') ';
                             }
                         } else {
                             $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -256,83 +309,90 @@ namespace Controllers {
             try {
                 $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 if (!empty($id)) {
-                    $book = new Book($this->db);
-                    $resBook = $book->newInstance($id);
-                    if (null != $resBook) {
-                        if ($resBook[0] != "") {
-                            try {
-                                $this->db->beginTransaction();
-                                // Удаление фото
-                                $photo = new Photo($this->db);
-                                $booksPhotos = new BookPhoto($this->db);
-                                $resBooksPhotos = $booksPhotos->getPhotosOfBook($id, 1000);
-                                if (null != $resBooksPhotos) {
-                                    if ($resBooksPhotos[0] != "") {
-                                        for ($i = 0; $i < count($resBooksPhotos); $i++) {
-                                            if (!$booksPhotos->delete($resBooksPhotos[$i]['id'])) {
-                                                $errors[] = 'Ошибка удаления изображения (промежуточная таблица)';
-                                                $this->db->rollBack();
-                                                $this->view->output($this->model->remove($errors));
-                                            } else {
-                                                $resPhoto = $photo->newInstance($resBooksPhotos[$i]['photo_id']);
-                                                if (null != $resPhoto) {
-                                                    if ($resPhoto[0] != "") {
-                                                        if ($photo->delete($resPhoto[0]['id'])) {
-                                                            if (!unlink($resPhoto[0]['path'])) {
-                                                                $errors[] = 'Ошибка удаления файла изображения.';
+                    if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                        strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                        $book = new Book($this->db);
+                        $resBook = $book->newInstance($id);
+                        if (null != $resBook) {
+                            if ($resBook[0] != "") {
+                                try {
+                                    $this->db->beginTransaction();
+                                    // Удаление фото
+                                    $photo = new Photo($this->db);
+                                    $booksPhotos = new BookPhoto($this->db);
+                                    $resBooksPhotos = $booksPhotos->getPhotosOfBook($id, 1000);
+                                    if (null != $resBooksPhotos) {
+                                        if ($resBooksPhotos[0] != "") {
+                                            for ($i = 0; $i < count($resBooksPhotos); $i++) {
+                                                if (!$booksPhotos->delete($resBooksPhotos[$i]['id'])) {
+                                                    $errors[] = 'Ошибка удаления изображения (промежуточная таблица)';
+                                                    $this->db->rollBack();
+                                                    $this->view->output($this->model->remove($errors));
+                                                } else {
+                                                    $resPhoto = $photo->newInstance($resBooksPhotos[$i]['photo_id']);
+                                                    if (null != $resPhoto) {
+                                                        if ($resPhoto[0] != "") {
+                                                            if ($photo->delete($resPhoto[0]['id'])) {
+                                                                if (!unlink($resPhoto[0]['path'])) {
+                                                                    $errors[] = 'Ошибка удаления файла изображения.';
+                                                                    $this->db->rollBack();
+                                                                    $this->view->output($this->model->remove($errors));
+                                                                }
+                                                            } else {
+                                                                $errors[] = 'Ошибка удаления изображения.';
                                                                 $this->db->rollBack();
                                                                 $this->view->output($this->model->remove($errors));
                                                             }
-                                                        } else {
-                                                            $errors[] = 'Ошибка удаления изображения.';
-                                                            $this->db->rollBack();
-                                                            $this->view->output($this->model->remove($errors));
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
 
-                                // Удаление авторов (промежуточная таблица)
-                                $booksAuthors = new BookAuthor($this->db);
-                                $resBooksAuthors = $booksAuthors->getAuthorsOfBook($id, 1000);
-                                if (null != $resBooksAuthors) {
-                                    if ($resBooksAuthors[0] != "") {
-                                        for ($i = 0; $i < count($resBooksAuthors); $i++) {
-                                            if (!$booksAuthors->delete($resBooksAuthors[$i]['id'])) {
-                                                $errors[] = 'Ошибка удаления автора книги (промежуточная таблица)';
-                                                $this->db->rollBack();
-                                                $this->view->output($this->model->remove($errors));
+                                    // Удаление авторов (промежуточная таблица)
+                                    $booksAuthors = new BookAuthor($this->db);
+                                    $resBooksAuthors = $booksAuthors->getAuthorsOfBook($id, 1000);
+                                    if (null != $resBooksAuthors) {
+                                        if ($resBooksAuthors[0] != "") {
+                                            for ($i = 0; $i < count($resBooksAuthors); $i++) {
+                                                if (!$booksAuthors->delete($resBooksAuthors[$i]['id'])) {
+                                                    $errors[] = 'Ошибка удаления автора книги (промежуточная таблица)';
+                                                    $this->db->rollBack();
+                                                    $this->view->output($this->model->remove($errors));
+                                                }
                                             }
+                                        } else {
+                                            $errors[] = 'Автор(ы) книги не найден(ы).';
                                         }
                                     } else {
                                         $errors[] = 'Автор(ы) книги не найден(ы).';
+                                        $this->db->rollBack();
+                                        $this->view->output($this->model->remove($errors));
                                     }
-                                } else {
-                                    $errors[] = 'Автор(ы) книги не найден(ы).';
-                                    $this->db->rollBack();
-                                    $this->view->output($this->model->remove($errors));
-                                }
 
-                                // Удаление книги
-                                if ($book->delete($id)) {
-                                    $this->db->commit();
-                                    UtilsService::redirect("books");
-                                } else {
-                                    $errors[] = 'Ошибка удаления книги.';
-                                    $this->view->output($this->model->remove($errors));
+                                    // Удаление книги
+                                    if ($book->delete($id)) {
+                                        $this->db->commit();
+                                        UtilsService::redirect("books");
+                                    } else {
+                                        $errors[] = 'Ошибка удаления книги.';
+                                        $this->view->output($this->model->remove($errors));
+                                    }
+                                } catch (\Exception $ex) {
+                                    $this->db->rollBack();
+                                    $errors[] = $ex->getMessage();
                                 }
-                            } catch (\Exception $ex) {
-                                $this->db->rollBack();
-                                $errors[] = $ex->getMessage();
+                            } else {
+                                $errors[] = 'Не найден элемент.';
                             }
                         } else {
                             $errors[] = 'Не найден элемент.';
                         }
                     } else {
-                        $errors[] = 'Не найден элемент.';
+                        $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                            DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                            ')';
                     }
                 } else {
                     $errors[] = 'Пустой id.';
@@ -413,184 +473,255 @@ namespace Controllers {
                                                         if (!empty($name) && !empty($datePublishing) &&
                                                             !empty($headingId) && !empty($publisherId) &&
                                                             !empty($authorsId)) {
-
-                                                            // Добавляем книгу
-                                                            $bookUpdate = $book->newEmptyInstance();
-                                                            $bookUpdate->setId($resBook[0]['id']);
-                                                            $bookUpdate->setName($name);
-                                                            $bookUpdate->setDatePublishing($datePublishing);
-                                                            $bookUpdate->setHeadingId($headingId);
-                                                            $bookUpdate->setPublisherId($publisherId);
-                                                            $bookUpdate->save();
-
-                                                            // Добавляем фото загруженные с пк (если есть)
-                                                            if (isset($_FILES['images'])) {
-                                                                $photo = new Photo($this->db);
-                                                                $bookPhoto = new BookPhoto($this->db);
-                                                                if (count($_FILES['images']['tmp_name']) > 0 &&
-                                                                    $_FILES['images']['tmp_name'][0] != "") {
-                                                                    for ($i = 0; $i < count($_FILES['images']['tmp_name']);
-                                                                         $i++) {
-                                                                        // Сохраняем файл в папку
-                                                                        $nameFile = uniqid() . '.jpg';
-                                                                        if (!move_uploaded_file($_FILES['images']['tmp_name'][$i],
-                                                                            DbConfig::PATH_TO_DB_IMAGES . $nameFile)) {
-                                                                            $errors[] = 'Ошибка сохранения файла.';
-                                                                            $this->db->rollBack();
-                                                                            $this->view->output($this->model->add($errors,
-                                                                                $headings, $publishers, $authors));
-                                                                            exit();
-                                                                        }
-                                                                        // Добавляем фото в б/д
-                                                                        $image = $photo->newEmptyInstance();
-                                                                        $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
-                                                                            $nameFile);
-                                                                        $image->save();
-                                                                        // Добавляем в промежуточную таблицу books_photos
-                                                                        $bookPhoto = $bookPhoto->newEmptyInstance();
-                                                                        $bookPhoto->setBookId($resBook[0]['id']);
-                                                                        $bookPhoto->setPhotoId($image->getId());
-                                                                        $bookPhoto->save();
+                                                            if (strlen($name) >= DbConfig::MIN_SYMBOLS_BOOK_NAME &&
+                                                                strlen($name) <= DbConfig::MAX_SYMBOLS_BOOK_NAME &&
+                                                                strlen($headingId) >= DbConfig::MIN_SYMBOLS_ID &&
+                                                                strlen($headingId) <= DbConfig::MAX_SYMBOLS_ID &&
+                                                                strlen($publisherId) >= DbConfig::MIN_SYMBOLS_ID &&
+                                                                strlen($publisherId) <= DbConfig::MAX_SYMBOLS_ID &&
+                                                                count($authorsId) >= DbConfig::MIN_AUTHORS_BOOK &&
+                                                                count($authorsId) <= DbConfig::MAX_AUTHORS_BOOK) {
+                                                                // Проверяем кол-во загружаемых фото
+                                                                $countPhoto = 0;
+                                                                if (isset($_FILES['images'])) {
+                                                                    if (count($_FILES['images']['tmp_name']) > 0 &&
+                                                                        $_FILES['images']['tmp_name'][0] != "") {
+                                                                        $countPhoto += count($_FILES['images']['tmp_name']);
                                                                     }
                                                                 }
-                                                            }
-                                                            // Добавляем фото с ссылок (если есть)
-                                                            if (isset($_POST['images_urls'])) {
-                                                                $resMatch = [];
-                                                                $imageUrls = filter_var($_POST['images_urls'],
-                                                                    FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                                                                if (!empty($imageUrls)) {
+                                                                if (isset($_POST['images_urls'])) {
+                                                                    $resMatch = array();
                                                                     if (preg_match_all(UtilsService::PATTERN_URL_IMAGE,
-                                                                        $imageUrls, $resMatch, PREG_SET_ORDER, 0)) {
-                                                                        foreach ($resMatch as $url) {
-                                                                            if (!empty($url)) {
+                                                                        $_POST['images_urls'], $resMatch,
+                                                                        PREG_SET_ORDER, 0)) {
+                                                                        if (count($resMatch) > 0 &&
+                                                                            $resMatch[0] != "") {
+                                                                            $countPhoto += count($resMatch);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                // Прибавляем кол-во книг уже в б/д
+                                                                $bookPhoto = new BookPhoto($this->db);
+                                                                $countPhoto += count($bookPhoto->getPhotosOfBook($resBook[0]['id'],
+                                                                    1000));
+                                                                // Отнимаем кол-во тех книг, которые пользователь желает удалить
+                                                                if (isset($_POST['remove_photos'])) {
+                                                                    if (!empty($_POST['remove_photos'])) {
+                                                                        $photosIds = explode("|",
+                                                                            $_POST['remove_photos']);
+                                                                        if (count($photosIds) > 0 &&
+                                                                            $photosIds[0] != "") {
+                                                                            $countPhoto -= count($photosIds);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if ($countPhoto >= DbConfig::MIN_PHOTOS_BOOK &&
+                                                                    $countPhoto <= DbConfig::MAX_PHOTOS_BOOK) {
+                                                                    // Добавляем книгу
+                                                                    $bookUpdate = $book->newEmptyInstance();
+                                                                    $bookUpdate->setId($resBook[0]['id']);
+                                                                    $bookUpdate->setName($name);
+                                                                    $bookUpdate->setDatePublishing($datePublishing);
+                                                                    $bookUpdate->setHeadingId($headingId);
+                                                                    $bookUpdate->setPublisherId($publisherId);
+                                                                    $bookUpdate->save();
+
+                                                                    // Добавляем фото загруженные с пк (если есть)
+                                                                    if (isset($_FILES['images'])) {
+                                                                        $photo = new Photo($this->db);
+                                                                        $bookPhoto = new BookPhoto($this->db);
+                                                                        if (count($_FILES['images']['tmp_name']) > 0 &&
+                                                                            $_FILES['images']['tmp_name'][0] != "") {
+                                                                            for ($i = 0; $i < count($_FILES['images']['tmp_name']);
+                                                                                 $i++) {
+                                                                                // Сохраняем файл в папку
                                                                                 $nameFile = uniqid() . '.jpg';
-                                                                                if (!file_put_contents(DbConfig::PATH_TO_DB_IMAGES .
-                                                                                    $nameFile,
-                                                                                    file_get_contents($url[0]))) {
-                                                                                    $errors[] = 'Ошибка загрузки изображения.';
+                                                                                if (!move_uploaded_file($_FILES['images']['tmp_name'][$i],
+                                                                                    DbConfig::PATH_TO_DB_IMAGES . $nameFile)) {
+                                                                                    $errors[] = 'Ошибка сохранения файла.';
                                                                                     $this->db->rollBack();
                                                                                     $this->view->output($this->model->add($errors,
                                                                                         $headings, $publishers,
                                                                                         $authors));
                                                                                     exit();
-                                                                                } else {
-                                                                                    // Добавляем фото в б/д
-                                                                                    $image = $photo->newEmptyInstance();
-                                                                                    $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
-                                                                                        $nameFile);
-                                                                                    $image->save();
-                                                                                    // Добавляем в промежуточную таблицу books_photos
-                                                                                    $bookPhoto = $bookPhoto->newEmptyInstance();
-                                                                                    $bookPhoto->setBookId($resBook[0]['id']);
-                                                                                    $bookPhoto->setPhotoId($image->getId());
-                                                                                    $bookPhoto->save();
+                                                                                }
+                                                                                // Добавляем фото в б/д
+                                                                                $image = $photo->newEmptyInstance();
+                                                                                $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
+                                                                                    $nameFile);
+                                                                                $image->save();
+                                                                                // Добавляем в промежуточную таблицу books_photos
+                                                                                $bookPhoto = $bookPhoto->newEmptyInstance();
+                                                                                $bookPhoto->setBookId($resBook[0]['id']);
+                                                                                $bookPhoto->setPhotoId($image->getId());
+                                                                                $bookPhoto->save();
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    // Добавляем фото с ссылок (если есть)
+                                                                    if (isset($_POST['images_urls'])) {
+                                                                        $resMatch = array();
+                                                                        $imageUrls = filter_var($_POST['images_urls'],
+                                                                            FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                                                                        if (!empty($imageUrls)) {
+                                                                            if (preg_match_all(UtilsService::PATTERN_URL_IMAGE,
+                                                                                $imageUrls, $resMatch, PREG_SET_ORDER,
+                                                                                0)) {
+                                                                                foreach ($resMatch as $url) {
+                                                                                    if (!empty($url)) {
+                                                                                        $nameFile = uniqid() . '.jpg';
+                                                                                        if (!file_put_contents(DbConfig::PATH_TO_DB_IMAGES .
+                                                                                            $nameFile,
+                                                                                            file_get_contents($url[0]))) {
+                                                                                            $errors[] = 'Ошибка загрузки изображения.';
+                                                                                            $this->db->rollBack();
+                                                                                            $this->view->output($this->model->add($errors,
+                                                                                                $headings, $publishers,
+                                                                                                $authors));
+                                                                                            exit();
+                                                                                        } else {
+                                                                                            // Добавляем фото в б/д
+                                                                                            $image = $photo->newEmptyInstance();
+                                                                                            $image->setPath(DbConfig::PATH_TO_DB_IMAGES .
+                                                                                                $nameFile);
+                                                                                            $image->save();
+                                                                                            // Добавляем в промежуточную таблицу books_photos
+                                                                                            $bookPhoto = $bookPhoto->newEmptyInstance();
+                                                                                            $bookPhoto->setBookId($resBook[0]['id']);
+                                                                                            $bookPhoto->setPhotoId($image->getId());
+                                                                                            $bookPhoto->save();
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            } else {
+                                                                                $errors[] = 'Url на изображение является некорректным.';
+                                                                                $this->db->rollBack();
+                                                                                $this->view->output($this->model->add($errors,
+                                                                                    $headings, $publishers, $authors));
+                                                                                exit();
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    // Удаляем старых авторов книги
+                                                                    $bookAuthor = new BookAuthor($this->db);
+                                                                    if ($bookAuthor->deleteAuthorsOfBook($resBook[0]['id'])) {
+                                                                        // Добавляем обновленных авторов книги
+                                                                        foreach ($authorsId as $authorId) {
+                                                                            if (!empty($authorsId)) {
+                                                                                $authorId = filter_var($authorId,
+                                                                                    FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                                                                                $authorFound = $author->newInstance($authorId);
+                                                                                if (null != $authorFound) {
+                                                                                    if ($authorFound[0] != "") {
+                                                                                        $bookAuthorNew = $bookAuthor->newEmptyInstance();
+                                                                                        $bookAuthorNew->setBookId($resBook[0]['id']);
+                                                                                        $bookAuthorNew->setAuthorId($authorFound[0]['id']);
+                                                                                        $bookAuthorNew->save();
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }
                                                                     } else {
-                                                                        $errors[] = 'Url на изображение является некорректным.';
+                                                                        $errors[] = 'Ошибка удаления старых авторов книги.';
                                                                         $this->db->rollBack();
-                                                                        $this->view->output($this->model->add($errors,
-                                                                            $headings, $publishers, $authors));
+                                                                        $this->view->output($this->model->edit($errors,
+                                                                            $resBook[0], $headings, $publishers,
+                                                                            $authors));
                                                                         exit();
                                                                     }
-                                                                }
-                                                            }
 
-                                                            // Удаляем старых авторов книги
-                                                            $bookAuthor = new BookAuthor($this->db);
-                                                            if ($bookAuthor->deleteAuthorsOfBook($resBook[0]['id'])) {
-                                                                // Добавляем обновленных авторов книги
-                                                                foreach ($authorsId as $authorId) {
-                                                                    if (!empty($authorsId)) {
-                                                                        $authorId = filter_var($authorId,
+                                                                    // Удаляем фото которые пользователь решил удалить
+                                                                    if (isset($_POST['remove_photos'])) {
+                                                                        $removePhotos = filter_var($_POST['remove_photos'],
                                                                             FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                                                                        $authorFound = $author->newInstance($authorId);
-                                                                        if (null != $authorFound) {
-                                                                            if ($authorFound[0] != "") {
-                                                                                $bookAuthorNew = $bookAuthor->newEmptyInstance();
-                                                                                $bookAuthorNew->setBookId($resBook[0]['id']);
-                                                                                $bookAuthorNew->setAuthorId($authorFound[0]['id']);
-                                                                                $bookAuthorNew->save();
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                $errors[] = 'Ошибка удаления старых авторов книги.';
-                                                                $this->db->rollBack();
-                                                                $this->view->output($this->model->edit($errors,
-                                                                    $resBook[0], $headings, $publishers, $authors));
-                                                                exit();
-                                                            }
+                                                                        if (!empty($removePhotos)) {
+                                                                            $photosIds = explode("|", $removePhotos);
+                                                                            foreach ($photosIds as $photoId) {
+                                                                                $photoDb = $photo->newInstance($photoId);
+                                                                                if (null != $photoDb) {
+                                                                                    if ($photoDb[0] != "") {
+                                                                                        // Ищем связные данные книга-фото в таблице
+                                                                                        if (!$bookPhoto
+                                                                                            ->deletePhotoOfBook($resBook[0]['id'],
+                                                                                                $photoDb[0]['id'])) {
+                                                                                            $errors[] = 'Ошибка удаления фото (связная таблица)';
+                                                                                            $this->db->rollBack();
+                                                                                            $this->view->output($this->model
+                                                                                                ->edit($errors,
+                                                                                                    $resBook[0],
+                                                                                                    $headings,
+                                                                                                    $publishers,
+                                                                                                    $authors));
+                                                                                            exit();
+                                                                                        }
 
-                                                            // Удаляем фото которые пользователь решил удалить
-                                                            if (isset($_POST['remove_photos'])) {
-                                                                $removePhotos = filter_var($_POST['remove_photos'],
-                                                                    FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                                                                if (!empty($removePhotos)) {
-                                                                    $photosIds = explode("|", $removePhotos);
-                                                                    foreach ($photosIds as $photoId) {
-                                                                        $photoDb = $photo->newInstance($photoId);
-                                                                        if (null != $photoDb) {
-                                                                            if ($photoDb[0] != "") {
-                                                                                // Ищем связные данные книга-фото в таблице
-                                                                                if (!$bookPhoto
-                                                                                    ->deletePhotoOfBook($resBook[0]['id'],
-                                                                                        $photoDb[0]['id'])) {
-                                                                                    $errors[] = 'Ошибка удаления фото (связная таблица)';
-                                                                                    $this->db->rollBack();
-                                                                                    $this->view->output($this->model
-                                                                                        ->edit($errors, $resBook[0],
-                                                                                            $headings,
-                                                                                            $publishers, $authors));
-                                                                                    exit();
-                                                                                }
-
-                                                                                if ($photo->delete($photoDb[0]['id'])) {
-                                                                                    if (!unlink($photoDb[0]['path'])) {
-                                                                                        $errors[] = 'Ошибка удаления файла изображения.';
+                                                                                        if ($photo->delete($photoDb[0]['id'])) {
+                                                                                            if (!unlink($photoDb[0]['path'])) {
+                                                                                                $errors[] = 'Ошибка удаления файла изображения.';
+                                                                                                $this->db->rollBack();
+                                                                                                $this->view->output($this
+                                                                                                    ->model->edit($errors,
+                                                                                                        $resBook[0],
+                                                                                                        $headings,
+                                                                                                        $publishers,
+                                                                                                        $authors));
+                                                                                                exit();
+                                                                                            }
+                                                                                        } else {
+                                                                                            $errors[] = 'Ошибка удаления фото.';
+                                                                                            $this->db->rollBack();
+                                                                                            $this->view->output($this
+                                                                                                ->model->edit($errors,
+                                                                                                    $resBook[0],
+                                                                                                    $headings,
+                                                                                                    $publishers,
+                                                                                                    $authors));
+                                                                                            exit();
+                                                                                        }
+                                                                                    } else {
+                                                                                        $errors[] = 'Не найдено фото для удаления.';
                                                                                         $this->db->rollBack();
                                                                                         $this->view->output($this
                                                                                             ->model->edit($errors,
-                                                                                                $resBook[0], $headings,
+                                                                                                $resBook[0],
+                                                                                                $headings,
                                                                                                 $publishers, $authors));
                                                                                         exit();
                                                                                     }
                                                                                 } else {
-                                                                                    $errors[] = 'Ошибка удаления фото.';
+                                                                                    $errors[] = 'Не найдено фото для удаления.';
                                                                                     $this->db->rollBack();
                                                                                     $this->view->output($this
                                                                                         ->model->edit($errors,
                                                                                             $resBook[0],
-                                                                                            $headings, $publishers,
-                                                                                            $authors));
+                                                                                            $headings,
+                                                                                            $publishers, $authors));
                                                                                     exit();
                                                                                 }
-                                                                            } else {
-                                                                                $errors[] = 'Не найдено фото для удаления.';
-                                                                                $this->db->rollBack();
-                                                                                $this->view->output($this
-                                                                                    ->model->edit($errors, $resBook[0],
-                                                                                        $headings,
-                                                                                        $publishers, $authors));
-                                                                                exit();
                                                                             }
-                                                                        } else {
-                                                                            $errors[] = 'Не найдено фото для удаления.';
-                                                                            $this->db->rollBack();
-                                                                            $this->view->output($this
-                                                                                ->model->edit($errors, $resBook[0],
-                                                                                    $headings,
-                                                                                    $publishers, $authors));
-                                                                            exit();
                                                                         }
                                                                     }
+                                                                    $this->db->commit();
+                                                                    UtilsService::redirect("books");
+                                                                } else {
+                                                                    $errors[] = 'Нарушены правила кол-ва в данных. Допустимо: Фото(' .
+                                                                        DbConfig::MIN_PHOTOS_BOOK . '-' . DbConfig::MAX_PHOTOS_BOOK .
+                                                                        ' шт.)';
                                                                 }
+                                                            } else {
+                                                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                                                    DbConfig::MIN_SYMBOLS_BOOK_NAME . '-' . DbConfig::MAX_SYMBOLS_BOOK_NAME .
+                                                                    ') HeadingId(' .
+                                                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                                                    ') PublisherId(' .
+                                                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                                                    ') Id(' .
+                                                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                                                    ') Authors(' .
+                                                                    DbConfig::MIN_AUTHORS_BOOK . '-' . DbConfig::MAX_AUTHORS_BOOK .
+                                                                    ') ';
                                                             }
-                                                            $this->db->commit();
-                                                            UtilsService::redirect("books");
                                                         } else {
                                                             $errors[] = 'Параметры элемента книги не должны быть пустыми.';
                                                         }
@@ -631,45 +762,53 @@ namespace Controllers {
                         if (!empty($id)) {
                             $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                             if ($id) {
-                                $resBook = $book->newInstance($id);
-                                if (null != $resBook) {
-                                    if ($resBook[0] != "") {
-                                        // Добавляем авторов книги
-                                        $resBooksAuthors = $booksAuthors->getAuthorsOfBookJoin($resBook[0]['id']);
-                                        if (null != $resBooksAuthors) {
-                                            if ($resBooksAuthors[0] != "") {
-                                                for ($i = 0; $i < count($resBooksAuthors); $i++) {
-                                                    $resBook[0]['authors_id'][] = $resBooksAuthors[$i]['id'];
-                                                }
-                                                // Добавляем фото книги
-                                                $resBooksPhotos = $booksPhotos->getPhotosOfBookJoin($resBook[0]['id'],
-                                                    1000);
-                                                $resArrayBooksPhotos = array();
-                                                if (null != $resBooksPhotos) {
-                                                    if ($resBooksPhotos[0] != "") {
-                                                        for ($i = 0; $i < count($resBooksPhotos); $i++) {
-                                                            $resArrayBooksPhotos[] = [
-                                                                'id' => $resBooksPhotos[$i]['id'],
-                                                                'path' => $resBooksPhotos[$i]['path']
-                                                            ];
+                                if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                                    strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                                    $resBook = $book->newInstance($id);
+                                    if (null != $resBook) {
+                                        if ($resBook[0] != "") {
+                                            // Добавляем авторов книги
+                                            $resBooksAuthors = $booksAuthors->getAuthorsOfBookJoin($resBook[0]['id']);
+                                            if (null != $resBooksAuthors) {
+                                                if ($resBooksAuthors[0] != "") {
+                                                    for ($i = 0; $i < count($resBooksAuthors); $i++) {
+                                                        $resBook[0]['authors_id'][] = $resBooksAuthors[$i]['id'];
+                                                    }
+                                                    // Добавляем фото книги
+                                                    $resBooksPhotos = $booksPhotos->getPhotosOfBookJoin($resBook[0]['id'],
+                                                        1000);
+                                                    $resArrayBooksPhotos = array();
+                                                    if (null != $resBooksPhotos) {
+                                                        if ($resBooksPhotos[0] != "") {
+                                                            for ($i = 0; $i < count($resBooksPhotos); $i++) {
+                                                                $resArrayBooksPhotos[] = [
+                                                                    'id' => $resBooksPhotos[$i]['id'],
+                                                                    'path' => $resBooksPhotos[$i]['path']
+                                                                ];
+                                                            }
                                                         }
                                                     }
+                                                    $resBook[0]['photos'] = $resArrayBooksPhotos;
+                                                    $this->view->output($this->model->edit($errors, $resBook[0],
+                                                        $headings,
+                                                        $publishers, $authors));
+                                                    exit();
+                                                } else {
+                                                    $errors[] = 'Авторы книги не найдены.';
                                                 }
-                                                $resBook[0]['photos'] = $resArrayBooksPhotos;
-                                                $this->view->output($this->model->edit($errors, $resBook[0], $headings,
-                                                    $publishers, $authors));
-                                                exit();
                                             } else {
                                                 $errors[] = 'Авторы книги не найдены.';
                                             }
                                         } else {
-                                            $errors[] = 'Авторы книги не найдены.';
+                                            $errors[] = 'Не найдена книга.';
                                         }
                                     } else {
                                         $errors[] = 'Не найдена книга.';
                                     }
                                 } else {
-                                    $errors[] = 'Не найдена книга.';
+                                    $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                        DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                        ')';
                                 }
                             } else {
                                 $errors[] = 'Присутствуют некорректные символы в данных.';

@@ -1,8 +1,8 @@
 <?php
 
-namespace database\PDO {
+namespace Database\PDO {
 
-    use database\DbConfig;
+    use Database\DbConfig;
     use PDO;
 
     class DbPDO extends PDO

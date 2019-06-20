@@ -1,22 +1,21 @@
 <?php
 
-namespace database\PDO\Entities {
+namespace Database\PDO\Entities {
 
-    use database\PDO\DbPDO;
-    use database\PDO\EntityOperations;
+    use Database\PDO\DbPDO;
+    use Database\PDO\EntityOperations;
 
-    class Publisher extends EntityOperations
+    class Version extends EntityOperations
     {
         private $db;
 
         private $id;
         private $name;
-        private $address;
-        private $phone;
+        private $created;
 
         public function __construct(DbPDO $db)
         {
-            parent::__construct($db, Publisher::getTable(), $this->id);
+            parent::__construct($db, Version::getTable(), $this->id);
             $this->db = $db;
         }
 
@@ -29,27 +28,20 @@ namespace database\PDO\Entities {
         }
 
         /**
+         * @param mixed $id
+         */
+        public function setId($id)
+        {
+            parent::setId($id);
+            $this->id = $id;
+        }
+
+        /**
          * @return mixed
          */
         public function getName()
         {
             return $this->name;
-        }
-
-        /**
-         * @return mixed
-         */
-        public function getAddress()
-        {
-            return $this->address;
-        }
-
-        /**
-         * @return mixed
-         */
-        public function getPhone()
-        {
-            return $this->phone;
         }
 
         /**
@@ -61,33 +53,24 @@ namespace database\PDO\Entities {
         }
 
         /**
-         * @param mixed $address
+         * @return mixed
          */
-        public function setAddress($address)
+        public function getCreated()
         {
-            $this->address = $address;
+            return $this->created;
         }
 
         /**
-         * @param mixed $phone
+         * @param mixed $created
          */
-        public function setPhone($phone)
+        public function setCreated($created)
         {
-            $this->phone = $phone;
+            $this->created = $created;
         }
 
         public static function getTable()
         {
-            return "publishers";
-        }
-
-        /**
-         * @param mixed $id
-         */
-        public function setId($id)
-        {
-            parent::setId($id);
-            $this->id = $id;
+            return "versions";
         }
 
         public function newEmptyInstance()
@@ -98,8 +81,7 @@ namespace database\PDO\Entities {
         public function _update()
         {
             $query = "UPDATE " . self::getTable() . " SET `name`='{$this->name}', "
-                . "`address`='{$this->address}', `phone`='{$this->phone}' 
-            WHERE `id`={$this->id}";
+                . " WHERE `id`={$this->id}";
             $this->execute($query);
             $this->id = $this->db->lastInsertId();
             return $this->db->lastInsertId();
@@ -107,8 +89,8 @@ namespace database\PDO\Entities {
 
         public function _insert()
         {
-            $query = "INSERT INTO " . self::getTable() . " (`name`, `address`, `phone`)"
-                . " VALUES ('{$this->name}', '{$this->address}', '{$this->phone}')";
+            $query = "INSERT INTO " . self::getTable() . " (`name`)"
+                . " VALUES ('{$this->name}')";
             $this->execute($query);
             $this->id = $this->db->lastInsertId();
             return $this->db->lastInsertId();

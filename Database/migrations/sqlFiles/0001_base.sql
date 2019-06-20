@@ -191,17 +191,17 @@ CREATE TABLE `photos` (
 --
 
 INSERT INTO `photos` (`id`, `path`) VALUES
-(138, 'database/dbStorage/bookImages/5d0608f5294bb.jpg'),
-(139, 'database/dbStorage/bookImages/5d0608f59ad3e.jpg'),
-(140, 'database/dbStorage/bookImages/5d0608f63ae39.jpg'),
-(141, 'database/dbStorage/bookImages/5d06096e1a238.jpg'),
-(142, 'database/dbStorage/bookImages/5d06096e8dde4.jpg'),
-(143, 'database/dbStorage/bookImages/5d06096eda886.jpg'),
-(144, 'database/dbStorage/bookImages/5d060a9cde048.jpg'),
-(145, 'database/dbStorage/bookImages/5d060a9d42815.jpg'),
-(146, 'database/dbStorage/bookImages/5d060b28b1d3d.jpg'),
-(147, 'database/dbStorage/bookImages/5d060b28b4c1e.jpg'),
-(148, 'database/dbStorage/bookImages/5d060b8954f03.jpg');
+(138, 'Database/dbStorage/bookImages/5d0608f5294bb.jpg'),
+(139, 'Database/dbStorage/bookImages/5d0608f59ad3e.jpg'),
+(140, 'Database/dbStorage/bookImages/5d0608f63ae39.jpg'),
+(141, 'Database/dbStorage/bookImages/5d06096e1a238.jpg'),
+(142, 'Database/dbStorage/bookImages/5d06096e8dde4.jpg'),
+(143, 'Database/dbStorage/bookImages/5d06096eda886.jpg'),
+(144, 'Database/dbStorage/bookImages/5d060a9cde048.jpg'),
+(145, 'Database/dbStorage/bookImages/5d060a9d42815.jpg'),
+(146, 'Database/dbStorage/bookImages/5d060b28b1d3d.jpg'),
+(147, 'Database/dbStorage/bookImages/5d060b28b4c1e.jpg'),
+(148, 'Database/dbStorage/bookImages/5d060b8954f03.jpg');
 
 -- --------------------------------------------------------
 

@@ -5,7 +5,7 @@ namespace MVC\Services {
     class UtilsService
     {
         // Регулярное выражение под ссылку на изображение
-        const PATTERN_URL_IMAGE = '/^(https?|ftp)\:\/\/[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,3}(\/\S*)?(\w+.(jpg|png|gif))/m';
+        const PATTERN_URL_IMAGE = '/^(https?|ftp)\:\/\/[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,3}(\/\S*)?(\w+.(jpg|png|gif|jpeg))/m';
 
         // Перейти по сгенерированной ссылке
         public static function redirect($controller = '', $action = '', $params = '')

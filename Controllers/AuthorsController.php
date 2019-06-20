@@ -2,9 +2,10 @@
 
 namespace Controllers {
 
-    use database\PDO\DbPDO;
-    use database\PDO\Entities\Author;
-    use database\PDO\Entities\BookAuthor;
+    use Database\DbConfig;
+    use Database\PDO\DbPDO;
+    use Database\PDO\Entities\Author;
+    use Database\PDO\Entities\BookAuthor;
     use Models\AuthorModel;
     use MVC\Controllers\BaseController;
     use MVC\Services\UtilsService;
@@ -52,22 +53,37 @@ namespace Controllers {
                         $lastName = filter_var($_POST['last_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         $middleName = filter_var($_POST['middle_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if ($firstName && $lastName && $middleName) {
-                            if (!empty($firstName) && !empty($lastName) && !empty($middleName)) {
-                                try {
-                                    $this->db->beginTransaction();
-                                    $author = new Author($this->db);
-                                    $author->setFirstName($firstName);
-                                    $author->setLastName($lastName);
-                                    $author->setMiddleName($middleName);
-                                    $author->save();
-                                    $this->db->commit();
-                                    UtilsService::redirect("authors");
-                                } catch (\Exception $ex) {
-                                    $this->db->rollBack();
-                                    $errors[] = $ex->getMessage();
+                            if (strlen($firstName) >= DbConfig::MIN_SYMBOLS_AUTHOR_FIRST_NAME &&
+                                strlen($firstName) <= DbConfig::MAX_SYMBOLS_AUTHOR_FIRST_NAME &&
+                                strlen($lastName) >= DbConfig::MIN_SYMBOLS_AUTHOR_LAST_NAME &&
+                                strlen($lastName) <= DbConfig::MAX_SYMBOLS_AUTHOR_LAST_NAME &&
+                                strlen($middleName) >= DbConfig::MIN_SYMBOLS_AUTHOR_MIDDLE_NAME &&
+                                strlen($middleName) <= DbConfig::MAX_SYMBOLS_AUTHOR_MIDDLE_NAME) {
+                                if (!empty($firstName) && !empty($lastName) && !empty($middleName)) {
+                                    try {
+                                        $this->db->beginTransaction();
+                                        $author = new Author($this->db);
+                                        $author->setFirstName($firstName);
+                                        $author->setLastName($lastName);
+                                        $author->setMiddleName($middleName);
+                                        $author->save();
+                                        $this->db->commit();
+                                        UtilsService::redirect("authors");
+                                    } catch (\Exception $ex) {
+                                        $this->db->rollBack();
+                                        $errors[] = $ex->getMessage();
+                                    }
+                                } else {
+                                    $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
                                 }
                             } else {
-                                $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_FIRST_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_FIRST_NAME .
+                                    ') Фамилия(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_LAST_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_LAST_NAME .
+                                    ') Отчество(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_MIDDLE_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_MIDDLE_NAME .
+                                    ')';
                             }
                         } else {
                             $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -89,34 +105,41 @@ namespace Controllers {
                 $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 if ($id) {
                     if (!empty($id)) {
-                        $author = new Author($this->db);
-                        $resAuthor = $author->newInstance($id);
-                        if (null != $resAuthor) {
-                            if ($resAuthor[0] != "") {
-                                $bookAuthor = new BookAuthor($this->db);
-                                $booksOfAuthor = $bookAuthor->getBooksByAuthorId($id, 1000);
-                                if (null == $booksOfAuthor || $booksOfAuthor[0] == "") {
-                                    try {
-                                        $this->db->beginTransaction();
-                                        if ($author->delete($id)) {
-                                            $this->db->commit();
-                                            UtilsService::redirect("authors");
-                                        } else {
+                        if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                            strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                            $author = new Author($this->db);
+                            $resAuthor = $author->newInstance($id);
+                            if (null != $resAuthor) {
+                                if ($resAuthor[0] != "") {
+                                    $bookAuthor = new BookAuthor($this->db);
+                                    $booksOfAuthor = $bookAuthor->getBooksByAuthorId($id, 1000);
+                                    if (null == $booksOfAuthor || $booksOfAuthor[0] == "") {
+                                        try {
+                                            $this->db->beginTransaction();
+                                            if ($author->delete($id)) {
+                                                $this->db->commit();
+                                                UtilsService::redirect("authors");
+                                            } else {
+                                                $this->db->rollBack();
+                                                $errors[] = 'Ошибка удаления.';
+                                            }
+                                        } catch (\Exception $ex) {
                                             $this->db->rollBack();
-                                            $errors[] = 'Ошибка удаления.';
+                                            $errors[] = $ex->getMessage();
                                         }
-                                    } catch (\Exception $ex) {
-                                        $this->db->rollBack();
-                                        $errors[] = $ex->getMessage();
+                                    } else {
+                                        $errors[] = 'Этот автор используется в книгах. Удалите сначала книги.';
                                     }
                                 } else {
-                                    $errors[] = 'Этот автор используется в книгах. Удалите сначала книги.';
+                                    $errors[] = 'Не найден элемент.';
                                 }
                             } else {
                                 $errors[] = 'Не найден элемент.';
                             }
                         } else {
-                            $errors[] = 'Не найден элемент.';
+                            $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                ')';
                         }
                     } else {
                         $errors[] = 'Пустой id.';
@@ -144,34 +167,53 @@ namespace Controllers {
                         $lastName = filter_var($_POST['last_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         $middleName = filter_var($_POST['middle_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if ($id && $firstName && $lastName && $middleName) {
-                            if (!empty($id) && !empty($firstName) && !empty($lastName) && !empty($middleName)) {
-                                $author = new Author($this->db);
-                                $resAuthor = $author->newInstance($id);
-                                if (null != $resAuthor) {
-                                    if ($resAuthor[0] != "") {
-                                        try {
-                                            $this->db->beginTransaction();
-                                            $authorUpdate = $author->newEmptyInstance();
-                                            $authorUpdate->setId($resAuthor[0]['id']);
-                                            $authorUpdate->setFirstName($firstName);
-                                            $authorUpdate->setLastName($lastName);
-                                            $authorUpdate->setMiddleName($middleName);
-                                            $authorUpdate->save();
-                                            $this->db->commit();
-                                            UtilsService::redirect("authors");
-                                        } catch (\Exception $ex) {
-                                            $this->db->rollBack();
-                                            $errors[] = $ex->getMessage();
+                            if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                                strlen($id) <= DbConfig::MAX_SYMBOLS_ID &&
+                                strlen($firstName) >= DbConfig::MIN_SYMBOLS_AUTHOR_FIRST_NAME &&
+                                strlen($firstName) <= DbConfig::MAX_SYMBOLS_AUTHOR_FIRST_NAME &&
+                                strlen($lastName) >= DbConfig::MIN_SYMBOLS_AUTHOR_LAST_NAME &&
+                                strlen($lastName) <= DbConfig::MAX_SYMBOLS_AUTHOR_LAST_NAME &&
+                                strlen($middleName) >= DbConfig::MIN_SYMBOLS_AUTHOR_MIDDLE_NAME &&
+                                strlen($middleName) <= DbConfig::MAX_SYMBOLS_AUTHOR_MIDDLE_NAME) {
+                                if (!empty($id) && !empty($firstName) && !empty($lastName) && !empty($middleName)) {
+                                    $author = new Author($this->db);
+                                    $resAuthor = $author->newInstance($id);
+                                    if (null != $resAuthor) {
+                                        if ($resAuthor[0] != "") {
+                                            try {
+                                                $this->db->beginTransaction();
+                                                $authorUpdate = $author->newEmptyInstance();
+                                                $authorUpdate->setId($resAuthor[0]['id']);
+                                                $authorUpdate->setFirstName($firstName);
+                                                $authorUpdate->setLastName($lastName);
+                                                $authorUpdate->setMiddleName($middleName);
+                                                $authorUpdate->save();
+                                                $this->db->commit();
+                                                UtilsService::redirect("authors");
+                                            } catch (\Exception $ex) {
+                                                $this->db->rollBack();
+                                                $errors[] = $ex->getMessage();
+                                            }
+                                        } else {
+                                            $errors[] = 'Не найден автор.';
                                         }
                                     } else {
                                         $errors[] = 'Не найден автор.';
                                     }
-                                } else {
-                                    $errors[] = 'Не найден автор.';
-                                }
 
+                                } else {
+                                    $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
+                                }
                             } else {
-                                $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_FIRST_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_FIRST_NAME .
+                                    ') Фамилия(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_LAST_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_LAST_NAME .
+                                    ') Отчество(' .
+                                    DbConfig::MIN_SYMBOLS_AUTHOR_MIDDLE_NAME . '-' . DbConfig::MAX_SYMBOLS_AUTHOR_MIDDLE_NAME .
+                                    ') Id(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ') ';
                             }
                         } else {
                             $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -184,17 +226,24 @@ namespace Controllers {
                         $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if ($id) {
                             if (!empty($id)) {
-                                $author = new Author($this->db);
-                                $resAuthor = $author->newInstance($id);
-                                if (null != $resAuthor) {
-                                    if ($resAuthor[0] != "") {
-                                        $this->view->output($this->model->edit($errors, $resAuthor[0]));
-                                        exit();
+                                if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                                    strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                                    $author = new Author($this->db);
+                                    $resAuthor = $author->newInstance($id);
+                                    if (null != $resAuthor) {
+                                        if ($resAuthor[0] != "") {
+                                            $this->view->output($this->model->edit($errors, $resAuthor[0]));
+                                            exit();
+                                        } else {
+                                            $errors[] = 'Не найден автор.';
+                                        }
                                     } else {
                                         $errors[] = 'Не найден автор.';
                                     }
                                 } else {
-                                    $errors[] = 'Не найден автор.';
+                                    $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                        DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                        ')';
                                 }
                             } else {
                                 $errors[] = 'Укажите не пустой id.';

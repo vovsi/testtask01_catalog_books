@@ -1,10 +1,10 @@
 <?php
 
-namespace database\migrations {
+namespace Database\migrations {
 
-    use database\DbConfig;
-    use database\PDO\DbPDO;
-    use database\PDO\Entities\Version;
+    use Database\DbConfig;
+    use Database\PDO\DbPDO;
+    use Database\PDO\Entities\Version;
     use PDOException;
 
     class MigrationUtils

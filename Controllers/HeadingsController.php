@@ -2,8 +2,9 @@
 
 namespace Controllers {
 
-    use database\PDO\DbPDO;
-    use database\PDO\Entities\Heading;
+    use Database\DbConfig;
+    use Database\PDO\DbPDO;
+    use Database\PDO\Entities\Heading;
     use Models\HeadingModel;
     use MVC\Controllers\BaseController;
     use MVC\Services\UtilsService;
@@ -58,20 +59,27 @@ namespace Controllers {
                         if ($name) {
                             $parentHeadingId = ($_POST['parent_heading_id'] == '-') ? null :
                                 filter_var($_POST['parent_heading_id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                            if (!empty($name)) {
-                                try {
-                                    $this->db->beginTransaction();
-                                    $heading->setName($name);
-                                    $heading->setParentHeadingId($parentHeadingId);
-                                    $heading->save();
-                                    $this->db->commit();
-                                    UtilsService::redirect("headings");
-                                } catch (\Exception $ex) {
-                                    $this->db->rollBack();
-                                    $errors[] = $ex->getMessage();
+                            if (strlen($name) >= DbConfig::MIN_SYMBOLS_HEADING_NAME &&
+                                strlen($name) <= DbConfig::MAX_SYMBOLS_HEADING_NAME) {
+                                if (!empty($name)) {
+                                    try {
+                                        $this->db->beginTransaction();
+                                        $heading->setName($name);
+                                        $heading->setParentHeadingId($parentHeadingId);
+                                        $heading->save();
+                                        $this->db->commit();
+                                        UtilsService::redirect("headings");
+                                    } catch (\Exception $ex) {
+                                        $this->db->rollBack();
+                                        $errors[] = $ex->getMessage();
+                                    }
+                                } else {
+                                    $errors[] = 'Все параметры элемента рубрики не должны быть пустыми.';
                                 }
                             } else {
-                                $errors[] = 'Все параметры элемента рубрики не должны быть пустыми.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Name('
+                                    . DbConfig::MIN_SYMBOLS_HEADING_NAME . '-' . DbConfig::MAX_SYMBOLS_HEADING_NAME .
+                                    ')';
                             }
                         } else {
                             $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -92,33 +100,40 @@ namespace Controllers {
             try {
                 $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 if (!empty($id)) {
-                    $heading = new Heading($this->db);
-                    $resHeading = $heading->newInstance($id);
-                    if (null != $resHeading) {
-                        if ($resHeading[0] != "") {
-                            try {
-                                $this->db->beginTransaction();
-                                if ($heading->delete($id)) {
-                                    $this->db->commit();
-                                    UtilsService::redirect("headings");
-                                } else {
-                                    $this->db->rollBack();
-                                    $errors[] = 'Ошибка удаления.';
-                                }
-                            } catch (\Exception $ex) {
-                                if ($ex->getCode() == 23000) {
-                                    $errors[] = "Рубрика, или её подразделы используются в книгах. Сначала нужно удалить 
+                    if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                        strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                        $heading = new Heading($this->db);
+                        $resHeading = $heading->newInstance($id);
+                        if (null != $resHeading) {
+                            if ($resHeading[0] != "") {
+                                try {
+                                    $this->db->beginTransaction();
+                                    if ($heading->delete($id)) {
+                                        $this->db->commit();
+                                        UtilsService::redirect("headings");
+                                    } else {
+                                        $this->db->rollBack();
+                                        $errors[] = 'Ошибка удаления.';
+                                    }
+                                } catch (\Exception $ex) {
+                                    if ($ex->getCode() == 23000) {
+                                        $errors[] = "Рубрика, или её подразделы используются в книгах. Сначала нужно удалить 
                                     книги.";
-                                } else {
-                                    $errors[] = $ex->getMessage();
+                                    } else {
+                                        $errors[] = $ex->getMessage();
+                                    }
+                                    $this->db->rollBack();
                                 }
-                                $this->db->rollBack();
+                            } else {
+                                $errors[] = 'Не найден элемент.';
                             }
                         } else {
                             $errors[] = 'Не найден элемент.';
                         }
                     } else {
-                        $errors[] = 'Не найден элемент.';
+                        $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                            DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                            ')';
                     }
                 } else {
                     $errors[] = 'Пустой id.';
@@ -148,28 +163,36 @@ namespace Controllers {
                                     if ($name) {
                                         $parentHeadingId = ($_POST['parent_heading_id'] == '-') ? null :
                                             filter_var($_POST['parent_heading_id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                                        // Если подрубрика ссылается на себя
-                                        if ($parentHeadingId == $resHeading[0]['id']) {
-                                            $errors[] = 'Нельзя выбрать подрубрику ссылающуюся на себя.';
-                                            $this->view->output($this->model->edit($errors, $headings, $resHeading[0]));
-                                            exit();
-                                        }
-                                        if (!empty($name)) {
-                                            try {
-                                                $this->db->beginTransaction();
-                                                $headingUpdate = $heading->newEmptyInstance();
-                                                $headingUpdate->setId($resHeading[0]['id']);
-                                                $headingUpdate->setName($name);
-                                                $headingUpdate->setParentHeadingId($parentHeadingId);
-                                                $headingUpdate->save();
-                                                $this->db->commit();
-                                                UtilsService::redirect("headings");
-                                            } catch (\Exception $ex) {
-                                                $this->db->rollBack();
-                                                $errors[] = $ex->getMessage();
+                                        if (strlen($name) >= DbConfig::MIN_SYMBOLS_HEADING_NAME &&
+                                            strlen($name) <= DbConfig::MAX_SYMBOLS_HEADING_NAME) {
+                                            // Если подрубрика ссылается на себя
+                                            if ($parentHeadingId == $resHeading[0]['id']) {
+                                                $errors[] = 'Нельзя выбрать подрубрику ссылающуюся на себя.';
+                                                $this->view->output($this->model->edit($errors, $headings,
+                                                    $resHeading[0]));
+                                                exit();
+                                            }
+                                            if (!empty($name)) {
+                                                try {
+                                                    $this->db->beginTransaction();
+                                                    $headingUpdate = $heading->newEmptyInstance();
+                                                    $headingUpdate->setId($resHeading[0]['id']);
+                                                    $headingUpdate->setName($name);
+                                                    $headingUpdate->setParentHeadingId($parentHeadingId);
+                                                    $headingUpdate->save();
+                                                    $this->db->commit();
+                                                    UtilsService::redirect("headings");
+                                                } catch (\Exception $ex) {
+                                                    $this->db->rollBack();
+                                                    $errors[] = $ex->getMessage();
+                                                }
+                                            } else {
+                                                $errors[] = 'Все параметры элемента рубрики не должны быть пустыми.';
                                             }
                                         } else {
-                                            $errors[] = 'Все параметры элемента рубрики не должны быть пустыми.';
+                                            $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Name('
+                                                . DbConfig::MIN_SYMBOLS_HEADING_NAME . '-' . DbConfig::MAX_SYMBOLS_HEADING_NAME .
+                                                ')';
                                         }
                                     } else {
                                         $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -192,16 +215,23 @@ namespace Controllers {
                     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                         $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if (!empty($id)) {
-                            $resHeading = $heading->newInstance($id);
-                            if (null != $resHeading) {
-                                if ($resHeading[0] != "") {
-                                    $this->view->output($this->model->edit($errors, $headings, $resHeading[0]));
-                                    exit();
+                            if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                                strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                                $resHeading = $heading->newInstance($id);
+                                if (null != $resHeading) {
+                                    if ($resHeading[0] != "") {
+                                        $this->view->output($this->model->edit($errors, $headings, $resHeading[0]));
+                                        exit();
+                                    } else {
+                                        $errors[] = 'Не найдена рубрика.';
+                                    }
                                 } else {
                                     $errors[] = 'Не найдена рубрика.';
                                 }
                             } else {
-                                $errors[] = 'Не найдена рубрика.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ')';
                             }
                         } else {
                             $errors[] = 'Укажите не пустой id.';

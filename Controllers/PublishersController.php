@@ -2,9 +2,10 @@
 
 namespace Controllers {
 
-    use database\PDO\DbPDO;
-    use database\PDO\Entities\Book;
-    use database\PDO\Entities\Publisher;
+    use Database\DbConfig;
+    use Database\PDO\DbPDO;
+    use Database\PDO\Entities\Book;
+    use Database\PDO\Entities\Publisher;
     use Models\PublisherModel;
     use MVC\Controllers\BaseController;
     use MVC\Services\UtilsService;
@@ -52,22 +53,37 @@ namespace Controllers {
                         $address = filter_var($_POST['address'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         $phone = filter_var($_POST['phone'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if ($name && $address && $phone) {
-                            if (!empty($name) && !empty($address) && !empty($phone)) {
-                                try {
-                                    $this->db->beginTransaction();
-                                    $publisher = new Publisher($this->db);
-                                    $publisher->setName($name);
-                                    $publisher->setAddress($address);
-                                    $publisher->setPhone($phone);
-                                    $publisher->save();
-                                    $this->db->commit();
-                                    UtilsService::redirect("publishers");
-                                } catch (\Exception $ex) {
-                                    $this->db->rollBack();
-                                    $errors[] = $ex->getMessage();
+                            if (strlen($name) >= DbConfig::MIN_SYMBOLS_PUBLISHER_NAME &&
+                                strlen($name) <= DbConfig::MAX_SYMBOLS_PUBLISHER_NAME &&
+                                strlen($address) >= DbConfig::MIN_SYMBOLS_PUBLISHER_ADDRESS &&
+                                strlen($address) <= DbConfig::MAX_SYMBOLS_PUBLISHER_ADDRESS &&
+                                strlen($phone) >= DbConfig::MIN_SYMBOLS_PUBLISHER_PHONE &&
+                                strlen($phone) <= DbConfig::MAX_SYMBOLS_PUBLISHER_PHONE) {
+                                if (!empty($name) && !empty($address) && !empty($phone)) {
+                                    try {
+                                        $this->db->beginTransaction();
+                                        $publisher = new Publisher($this->db);
+                                        $publisher->setName($name);
+                                        $publisher->setAddress($address);
+                                        $publisher->setPhone($phone);
+                                        $publisher->save();
+                                        $this->db->commit();
+                                        UtilsService::redirect("publishers");
+                                    } catch (\Exception $ex) {
+                                        $this->db->rollBack();
+                                        $errors[] = $ex->getMessage();
+                                    }
+                                } else {
+                                    $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
                                 }
                             } else {
-                                $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                    DbConfig::MIN_SYMBOLS_PUBLISHER_NAME . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_NAME .
+                                    ') Адрес(' .
+                                    DbConfig::MIN_SYMBOLS_PUBLISHER_ADDRESS . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_ADDRESS .
+                                    ') Телефон(' .
+                                    DbConfig::MIN_SYMBOLS_PUBLISHER_PHONE . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_PHONE .
+                                    ')';
                             }
                         } else {
                             $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -87,34 +103,41 @@ namespace Controllers {
             $errors = array();
             try {
                 if (!empty($id)) {
-                    $publisher = new Publisher($this->db);
-                    $resPublisher = $publisher->newInstance($id);
-                    if (null != $resPublisher) {
-                        if ($resPublisher[0] != "") {
-                            $book = new Book($this->db);
-                            $booksOfPublisher = $book->getBooksByPublisherId($id, 1000);
-                            if ($booksOfPublisher[0] == "") {
-                                try {
-                                    $this->db->beginTransaction();
-                                    if ($publisher->delete($id)) {
-                                        $this->db->commit();
-                                        UtilsService::redirect("publishers");
-                                    } else {
+                    if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                        strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                        $publisher = new Publisher($this->db);
+                        $resPublisher = $publisher->newInstance($id);
+                        if (null != $resPublisher) {
+                            if ($resPublisher[0] != "") {
+                                $book = new Book($this->db);
+                                $booksOfPublisher = $book->getBooksByPublisherId($id, 1000);
+                                if ($booksOfPublisher[0] == "") {
+                                    try {
+                                        $this->db->beginTransaction();
+                                        if ($publisher->delete($id)) {
+                                            $this->db->commit();
+                                            UtilsService::redirect("publishers");
+                                        } else {
+                                            $this->db->rollBack();
+                                            $errors[] = 'Ошибка удаления.';
+                                        }
+                                    } catch (\Exception $ex) {
                                         $this->db->rollBack();
-                                        $errors[] = 'Ошибка удаления.';
+                                        $errors[] = $ex->getMessage();
                                     }
-                                } catch (\Exception $ex) {
-                                    $this->db->rollBack();
-                                    $errors[] = $ex->getMessage();
+                                } else {
+                                    $errors[] = 'Это издательство используется в книгах. Удалите сначала книги.';
                                 }
                             } else {
-                                $errors[] = 'Это издательство используется в книгах. Удалите сначала книги.';
+                                $errors[] = 'Не найден элемент.';
                             }
                         } else {
                             $errors[] = 'Не найден элемент.';
                         }
                     } else {
-                        $errors[] = 'Не найден элемент.';
+                        $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                            DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                            ')';
                     }
                 } else {
                     $errors[] = 'Пустой id.';
@@ -143,23 +166,38 @@ namespace Controllers {
                                     $address = filter_var($_POST['address'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                                     $phone = filter_var($_POST['phone'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                                     if ($name && $address && $phone) {
-                                        if (!empty($name) && !empty($address) && !empty($phone)) {
-                                            try {
-                                                $this->db->beginTransaction();
-                                                $publisherUpdate = $publisher->newEmptyInstance();
-                                                $publisherUpdate->setId($_POST['id']);
-                                                $publisherUpdate->setName($name);
-                                                $publisherUpdate->setAddress($address);
-                                                $publisherUpdate->setPhone($phone);
-                                                $publisherUpdate->save();
-                                                $this->db->commit();
-                                                UtilsService::redirect("publishers");
-                                            } catch (\Exception $ex) {
-                                                $this->db->rollBack();
-                                                $errors[] = $ex->getMessage();
+                                        if (strlen($name) >= DbConfig::MIN_SYMBOLS_PUBLISHER_NAME &&
+                                            strlen($name) <= DbConfig::MAX_SYMBOLS_PUBLISHER_NAME &&
+                                            strlen($address) >= DbConfig::MIN_SYMBOLS_PUBLISHER_ADDRESS &&
+                                            strlen($address) <= DbConfig::MAX_SYMBOLS_PUBLISHER_ADDRESS &&
+                                            strlen($phone) >= DbConfig::MIN_SYMBOLS_PUBLISHER_PHONE &&
+                                            strlen($phone) <= DbConfig::MAX_SYMBOLS_PUBLISHER_PHONE) {
+                                            if (!empty($name) && !empty($address) && !empty($phone)) {
+                                                try {
+                                                    $this->db->beginTransaction();
+                                                    $publisherUpdate = $publisher->newEmptyInstance();
+                                                    $publisherUpdate->setId($_POST['id']);
+                                                    $publisherUpdate->setName($name);
+                                                    $publisherUpdate->setAddress($address);
+                                                    $publisherUpdate->setPhone($phone);
+                                                    $publisherUpdate->save();
+                                                    $this->db->commit();
+                                                    UtilsService::redirect("publishers");
+                                                } catch (\Exception $ex) {
+                                                    $this->db->rollBack();
+                                                    $errors[] = $ex->getMessage();
+                                                }
+                                            } else {
+                                                $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
                                             }
                                         } else {
-                                            $errors[] = 'Все параметры элемента издательства не должны быть пустыми.';
+                                            $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Имя(' .
+                                                DbConfig::MIN_SYMBOLS_PUBLISHER_NAME . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_NAME .
+                                                ') Адрес(' .
+                                                DbConfig::MIN_SYMBOLS_PUBLISHER_ADDRESS . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_ADDRESS .
+                                                ') Телефон(' .
+                                                DbConfig::MIN_SYMBOLS_PUBLISHER_PHONE . '-' . DbConfig::MAX_SYMBOLS_PUBLISHER_PHONE .
+                                                ')';
                                         }
                                     } else {
                                         $errors[] = 'Присутствуют некорректные символы в данных.';
@@ -182,16 +220,23 @@ namespace Controllers {
                     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                         $id = filter_var($id, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         if (!empty($id)) {
-                            $resPublisher = $publisher->newInstance($id);
-                            if (null != $resPublisher) {
-                                if ($resPublisher[0] != "") {
-                                    $this->view->output($this->model->edit($errors, $resPublisher[0]));
-                                    exit();
+                            if (strlen($id) >= DbConfig::MIN_SYMBOLS_ID &&
+                                strlen($id) <= DbConfig::MAX_SYMBOLS_ID) {
+                                $resPublisher = $publisher->newInstance($id);
+                                if (null != $resPublisher) {
+                                    if ($resPublisher[0] != "") {
+                                        $this->view->output($this->model->edit($errors, $resPublisher[0]));
+                                        exit();
+                                    } else {
+                                        $errors[] = 'Не найден издатель.';
+                                    }
                                 } else {
                                     $errors[] = 'Не найден издатель.';
                                 }
                             } else {
-                                $errors[] = 'Не найден издатель.';
+                                $errors[] = 'Нарушены правила кол-ва символов в данных. Допустимо: Id(' .
+                                    DbConfig::MIN_SYMBOLS_ID . '-' . DbConfig::MAX_SYMBOLS_ID .
+                                    ')';
                             }
                         } else {
                             $errors[] = 'Укажите не пустой id.';
