@@ -7,7 +7,7 @@ namespace Database {
         // CONFIG DB CONNECT
         const HOST = "localhost";
         const USERNAME = "root";
-        const PASSWORD = "root";
+        const PASSWORD = "";
         const DATABASE = "catalog_books";
 
         // PATHS
