@@ -1,22 +1,38 @@
-# testtask01_catalog_books
-Тестовое задание по PHP. Каталог книг.
+# Book Catalog (PHP Project)
 
-Инструкция по запуску:
-1) Папку с проектом поместить в htdocs (в xampp)
-2) Запустить xampp
-3) Запустить Apache и MySQL в xampp
-4) В адресной строке прописать путь к проекту (начиная от папки htdocs (её не учитывать))
+A simple book catalog management system built with PHP and MySQL. Includes database migrations and a user-friendly web interface for managing book data.
 
-В начале работы с сайтом:
-1) Перед работой с сайтом нужно создать пустую базу данных с названием catalog_books (с кодировкой urf8_general_ci)
-2) Убедиться что конфигурация для подключения к б/д правильная (по-умолчанию username: root, password:) 
-Изменить конфигурацию можно в классе-файле /Database/DbConfig.php
-3) Затем на главной странице перейти во вкладку Миграции б/д и обновить базу данных
-4) После чего все таблицы, и данные будут загружены в б/д catalog_books
+## Getting Started
 
-Как реализованы миграции?
-По пути /Database/migrations/sqlFiles/ находятся все файлы миграций. Каждый файл - новая версия. Каждый файл пронумерован, и включено 
-краткое описание обновления.
-При добавлении новой версии, и обновлении миграций на сайте - в б/д будет выполнен скрипт mysql из файла.
-В б/д есть таблица versions в которой находится список загруженных обновлений (версий б/д) с датой-время обновления. Что позволит 
-не загружать обновления повторно (если уже они загружены) 
+### Requirements
+
+- XAMPP (or similar stack with Apache, PHP, and MySQL)
+
+### Setup Instructions
+
+1. Place the project folder inside the `htdocs` directory (e.g., `C:/xampp/htdocs/your-folder-name`)
+2. Open XAMPP and start both **Apache** and **MySQL**
+3. In your browser, go to:  
+   `http://localhost/your-folder-name`
+
+### Before Using the Site
+
+1. Create an **empty MySQL database** named `catalog_books` with `utf8_general_ci` collation.
+2. Make sure the database configuration in the project is correct:  
+   - Default: `username: root`, `password: (empty)`  
+   - To change credentials, edit the file:  
+     `/Database/DbConfig.php`
+3. On the website, navigate to the **"Migrations"** section and run the migration process.
+4. All necessary tables and seed data will be loaded into the `catalog_books` database.
+
+## How Migrations Work
+
+- Migration files are located at:  
+  `/Database/migrations/sqlFiles/`
+- Each file represents a new version of the database. Files are **numbered** and include a short **description**.
+- When a new migration is added and applied through the site, the corresponding SQL script is executed.
+- The `versions` table in the database keeps track of applied migrations, including the timestamp, to prevent duplicate runs.
+
+## License
+
+This project is open-source and free to use under the MIT License.
